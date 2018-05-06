@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- coding: utf8 -*-
 import requests
 import sys
 
@@ -6,14 +6,22 @@ from bs4 import BeautifulSoup
 
 
 
-query = sys.argv[1]
+query = "{query}"
 
-url = 'https://number.whoscall.com/zh-TW/tw/'+query
+
+if query[0:4] == "+852":
+    url = 'https://number.whoscall.com/zh-TW/hk/'+ query[4:]
+elif query[0:3] == "+86":
+    url = 'https://number.whoscall.com/zh-TW/cn/'+ query[3:]
+elif query[0:4] == "+886":
+	url = 'https://number.whoscall.com/zh-TW/tw/'+ query[4:]
+else:
+	url = 'https://number.whoscall.com/zh-TW/tw/'+ query
 
 
 WebSession = requests.Session()
 
-WebSend = WebSession.post(url)
+WebSend = WebSession.get(url)
 SourceCode = BeautifulSoup(WebSend.content , "html.parser")
 
 
@@ -24,9 +32,10 @@ SpamNumber = (SourceCode.find_all('p',{'class':'number-info__category--spam'}))
 NumberCategory = (SourceCode.find_all('p',{'class':'number-info__category'}))
 
 
+
+
 NumberInfo = str(NumberInfo).split("\\n              ")[1].split("\\n")[0]
 DecodeNumberInfo = NumberInfo.decode('unicode_escape')
-
 
 print DecodeNumberInfo
 
@@ -39,7 +48,3 @@ else:
 	NumberCategory = str(NumberCategory).split("\\n              ")[1].split("\\n")[0]
 	DecodeNumberCategory = NumberCategory.decode('unicode_escape')
 	print DecodeNumberCategory
-
-
-
-
